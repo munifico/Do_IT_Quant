@@ -82,14 +82,14 @@ def crawl(j_code, c_name):
     return df
 
 # 정보가 있는 가장 최신 정보 리턴
-def dataProcess(df, c_code):
+def dataProcess(df, c_code, c_name):
 
     QuantDataTable = {}
     CompanyDetailTable = {}
-    QuantDataTable["cmpName"] = df.name
+    QuantDataTable["cmpName"] = c_name
     QuantDataTable["code"] = c_code
     CompanyDetailTable["code"] = c_code
-    CompanyDetailTable["cmpName"] = df.name
+    CompanyDetailTable["cmpName"] = c_name
 
     # 2020-07-16: 이제 아무 정보 없어도 null 넣어서 리턴
     # QuantDataTable
@@ -259,7 +259,7 @@ for i in jongmok_code.index:
   # if type(df) == type("no_info"):
       # no_info.append(c_name)
   # else:
-  Qdata, Cdata, data_status = dataProcess(df, c_code)
+  Qdata, Cdata, data_status = dataProcess(df, c_code, c_name)
   # if type(Qdata) == type("no_info"):
   #     no_info.append(c_name)
   Cdata["description"] = desc
@@ -275,8 +275,8 @@ for i in jongmok_code.index:
   CTable.append(Cdata)
 
 
-no_info = set(no_info)
-no_info = list(no_info)
+# no_info = set(no_info)
+# no_info = list(no_info)
 
 fn1 = './data/' + str(fds) + '/QuantDataTable.json'
 fn2 = './data/' + str(fds) + '/CompanyDetailTable.json'

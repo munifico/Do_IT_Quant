@@ -22,7 +22,7 @@ def crawl(c_code):
     ps = bsObj.find_all("p", attrs={"class":"no_today"})
 
     if len(ps) < 1:
-        return "no_info"
+        return None
 
     p = ps[0]
     em = p.find_all("em", attrs={"class":"X"})
@@ -32,14 +32,15 @@ def crawl(c_code):
         em = p.find_all("em", attrs={"class":"no_down"})
     # 정보 없는 경우
     if len(em) < 1:
-        return "no_info"
+        return None
 
     em = em[0]
     res = em.find_all("span", attrs={"class":"blind"})
 
     if len(res) < 1:
-        return "no_info"
+        return None
 
+    # float로 처리
     res = res[0].text
     if ',' in res:
         res = res.replace(',', '')
@@ -50,7 +51,8 @@ def crawl(c_code):
 
 jongmok_code = ExcelRead("./data/sangjang_jongmokCode.xlsx")
 jongga_data = {}
-no_jongga = []
+# 2020-07-16 이제 종가 데이터 없더라도 null로 올려서 보관
+# no_jongga = []
 
 for i in jongmok_code.index:
     c_name = jongmok_code.iloc[i]["회사명"]
@@ -60,13 +62,10 @@ for i in jongmok_code.index:
         ii = 6 - len(c_code)
         c_code = '0' * ii + str(c_code)
     jongga = crawl(c_code)
-    if jongga == -1:
-        no_jongga.append(c_name)
-        del jongga_data[c_name]
-    else:
-        jongga = str(jongga).replace(',', '')
-        jongga_data[c_name]["code"] = c_code
-        jongga_data[c_name]["endPrice"] = jongga
+    jongga_data[c_name]["code"] = c_code
+    jongga_data[c_name]["endPrice"] = jongga
+    # 디버깅용 ^^
+    print(c_code, c_name, jongga)
 
 # 2020-07-15 : 테이블 형태 바뀜
 result = []
@@ -78,7 +77,7 @@ nowDate = now.strftime('%Y_%m_%d')
 nds = str(nowDate)
 
 fn1 = './data/' + str(nds) + '/dailyUpdateData.json'
-fn2 = './data/' + str(nds) + '/no_jongga.json'
+# fn2 = './data/' + str(nds) + '/no_jongga.json'
 
 dn = './data/' + str(nds)
 if os.path.isdir(dn):
@@ -87,4 +86,4 @@ os.mkdir(dn)
 
 #json 파일로 저장
 JsonWrite(fn1, result)
-JsonWrite(fn2, no_jongga)
+# JsonWrite(fn2, no_jongga)
