@@ -10,27 +10,42 @@ import os
 # delete directory and files at once
 import shutil
 
-
+# 네이버 금융으로 url 변경
 def crawl(c_code):
 
-    url = "http://www.thinkpool.com/itemanal/i/chart.jsp?code="
+    # url = "http://www.thinkpool.com/itemanal/i/chart.jsp?code="
+    url = "https://finance.naver.com/item/main.nhn?code="
     url += str(c_code)
     html = urlopen(url)
-    soup = BeautifulSoup(html, 'html.parser')
+    bsObj = BeautifulSoup(html, "html.parser")
 
-    table = soup.find("table", attrs={"class":"tbl1"})
+    ps = bsObj.find_all("p", attrs={"class":"no_today"})
 
-    if type(table) == type(None):
-        return -1
+    if len(ps) < 1:
+        return "no_info"
 
-    trs = table.find_all('tr')
+    p = ps[0]
+    em = p.find_all("em", attrs={"class":"X"})
+    if len(em) < 1:
+        em = p.find_all("em", attrs={"class":"no_up"})
+    if len(em) < 1:
+        em = p.find_all("em", attrs={"class":"no_down"})
+    # 정보 없는 경우
+    if len(em) < 1:
+        return "no_info"
 
-    for tr in trs:
-        if "전일종가" in str(tr):
-            tds = tr.find_all('td')
-            jongga = tds[0].text.strip()
+    em = em[0]
+    res = em.find_all("span", attrs={"class":"blind"})
 
-    return jongga
+    if len(res) < 1:
+        return "no_info"
+
+    res = res[0].text
+    if ',' in res:
+        res = res.replace(',', '')
+    res = float(res)
+
+    return res
 
 
 jongmok_code = ExcelRead("./data/sangjang_jongmokCode.xlsx")
@@ -49,16 +64,20 @@ for i in jongmok_code.index:
         no_jongga.append(c_name)
         del jongga_data[c_name]
     else:
-        jongga = jongga.replace(',', '')
+        jongga = str(jongga).replace(',', '')
         jongga_data[c_name]["code"] = c_code
         jongga_data[c_name]["endPrice"] = jongga
 
+# 2020-07-15 : 테이블 형태 바뀜
+result = []
+for k in jongga_data:
+    result.append(jongga_data[k])
 
 now = datetime.datetime.now()
 nowDate = now.strftime('%Y_%m_%d')
 nds = str(nowDate)
 
-fn1 = './data/' + str(nds) + '/jongga.json'
+fn1 = './data/' + str(nds) + '/dailyUpdateData.json'
 fn2 = './data/' + str(nds) + '/no_jongga.json'
 
 dn = './data/' + str(nds)
@@ -67,5 +86,5 @@ if os.path.isdir(dn):
 os.mkdir(dn)
 
 #json 파일로 저장
-JsonWrite(fn1, jongga_data)
+JsonWrite(fn1, result)
 JsonWrite(fn2, no_jongga)

@@ -1707,13 +1707,13 @@
 	{
 		"cmpName": "모트렉스",
 		"code": "118990",
-		"debtRatio": 315.95,
-		"reserveRatio": 3394.57,
+		"debtRatio": 322.23,
+		"reserveRatio": 3349.04,
 		"operatingProfitRatio": 5.29,
 		"roa": -0.13,
-		"roe": -0.31,
+		"roe": -0.32,
 		"per": null,
-		"pbr": 0.96
+		"pbr": 0.97
 	},
 	{
 		"cmpName": "지니언스",
