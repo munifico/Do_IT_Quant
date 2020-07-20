@@ -4,6 +4,7 @@ from html_table_parser import parser_functions as parser
 
 import datetime
 from file_rw import *
+import math
 
 import os
 import shutil
@@ -164,7 +165,8 @@ def dataProcess(df, c_code, c_name):
             CompanyDetailTable['sales'] = df[thisColumn][i]
         elif tmp[i] == '영업이익':
             CompanyDetailTable['operatingProfit'] = df[thisColumn][i]
-        elif tmp[i] == '당기손이익':
+        # 2020-07-20 오타로 인한 null 수정
+        elif tmp[i] == '당기순이익':
             CompanyDetailTable['netIncome'] = df[thisColumn][i]
 
     return QuantDataTable, CompanyDetailTable, 1
@@ -262,6 +264,10 @@ for i in jongmok_code.index:
   Qdata, Cdata, data_status = dataProcess(df, c_code, c_name)
   # if type(Qdata) == type("no_info"):
   #     no_info.append(c_name)
+  # 2020-07-20 NaN 처리
+  if type(desc) != type('str'):
+      if math.isnan(desc):
+          desc = None
   Cdata["description"] = desc
   Cdata["market"] = market
   # 정보가 없을 경우
